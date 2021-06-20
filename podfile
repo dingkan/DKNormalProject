@@ -1,0 +1,52 @@
+#指向 CocoaPods Master Repo。 CDN缓存Cocoapods Master Repo
+source 'https://cdn.cocoapods.org/'
+
+workspace './DKNormalProject.xcworkspace'
+project './DKNormalProject/DKNormalProject.xcodeproj'
+
+platform :ios, '10.0'
+#cocoapods把所有三方依赖达成动态加载库（加快编译和链接速度）
+use_frameworks!
+
+#开发相关
+def dev_pods
+  pod 'SwiftLint', '0.40.3', configurations: ['Debug']
+  pod 'SwiftGen', '6.4.0', configurations: ['Debug']
+end
+
+#核心库
+def core_pods
+  pod 'RxSwift', '= 5.1.1'
+  pod 'RxRelay', '= 5.1.1'
+  pod 'Alamofire', '= 5.3.0'
+end
+
+#工具
+def ui_pods
+  pod 'SnapKit', '= 5.0.1'
+  pod 'Kingfisher', '= 5.15.6'
+  pod 'RxCocoa', '= 5.1.1'
+  pod 'RxDataSources', '= 4.0.1'
+end
+
+#三方
+def thirdparty_pods
+end
+
+
+target 'DKNormalProject' do
+  dev_pods
+  core_pods
+  ui_pods
+  thirdparty_pods
+  # other pods...
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+    end
+  end
+end
